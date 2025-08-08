@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Selamat Ulang Tahun 🎉</title>
+  <style>
+    :root {
+      --bg:#0b1020;
+      --accent:#ffd166;
+      --muted:#cbd5e1;
+    }
+    html,body {
+      height:100%;
+      margin:0;
+      font-family:Inter, system-ui, Arial;
+    }
+    body {
+      background: radial-gradient(ellipse at bottom, rgba(255,255,255,0.03), transparent 30%), var(--bg);
+      color:var(--muted);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+.photo {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, #0e1530, #1b2340);
+  margin-bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto; /* Biar tetap center di layar kecil */
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Foto tetap proporsional dan terisi penuh */
+}
+
+
+    /* Judul kelap-kelip */
+    .glow-text {
+      font-size:2.2rem;
+      font-weight:bold;
+      animation: glow 1s infinite alternate;
+    }
+    @keyframes glow {
+      0% { color: #ff3e3e; text-shadow: 0 0 10px #ff3e3e; }
+      25% { color: #fffb3e; text-shadow: 0 0 10px #fffb3e; }
+      50% { color: #3eff57; text-shadow: 0 0 10px #3eff57; }
+      75% { color: #3ecbff; text-shadow: 0 0 10px #3ecbff; }
+      100% { color: #ff3ef3; text-shadow: 0 0 10px #ff3ef3; }
+    }
+
+    /* Pesan */
+    .message {
+      margin:10px auto 20px;
+      max-width:400px;
+      padding:14px;
+      background:rgba(255,255,255,0.05);
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.1);
+      color:#f1f5f9;
+      font-size:1.05rem;
+    }
+
+    /* Kado */
+    .gift-box {
+      width:120px;
+      height:120px;
+      background:var(--accent);
+      position:relative;
+      margin:10px auto;
+      cursor:pointer;
+      transition:transform 0.3s ease;
+      border-radius:10px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.4);
+    }
+    .gift-box:hover { transform:scale(1.05); }
+    .gift-box::before, .gift-box::after {
+      content:'';
+      position:absolute;
+      background:#d62828;
+    }
+    .gift-box::before {
+      width:20px; height:100%;
+      left:calc(50% - 10px); top:0;
+    }
+    .gift-box::after {
+      height:20px; width:100%;
+      top:calc(50% - 10px); left:0;
+    }
+    .ribbon {
+      position:absolute;
+      top:-20px; left:50%;
+      transform:translateX(-50%);
+      width:50px; height:20px;
+      background:#d62828;
+      border-radius:50% 50% 0 0;
+    }
+
+    /* Tulisan hadiah */
+    .gift-text {
+      margin-top:8px;
+      font-size:1rem;
+      color:#fff;
+    }
+
+    /* Fireworks canvas */
+    canvas#fireworksCanvas {
+      position:fixed;
+      left:0; top:0;
+      width:100%; height:100%;
+      pointer-events:none;
+      z-index:0;
+    }
+    .content { position:relative; z-index:1; }
+  </style>
+</head>
+<body>
+  <canvas id="fireworksCanvas"></canvas>
+
+  <div class="content">
+    <div class="photo">
+      <img src="fitra.jpg" alt="Foto Ucapan" />
+    </div>
+
+    <h1 class="glow-text">Happy Birthday!</h1>
+    <h1 class="glow-text">Fitra Firdaus</h1>
+    
+
+    <div class="message">
+      Semoga hari ini penuh tawa, kejutan manis, dan semua impianmu menjadi kenyataan 🎂✨
+    </div>
+
+    <!-- Kado -->
+    <div class="gift-box" onclick="window.location.href='hadia.html'">
+      <div class="ribbon"></div>
+    </div>
+    <div class="gift-text">Klik untuk menerima hadiah</div>
+  </div>
+
+  <script>
+    // Fireworks
+    const canvas = document.getElementById('fireworksCanvas');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = innerWidth;
+    let H = canvas.height = innerHeight;
+    let fireworks = [], particles = [];
+
+    function rand(min, max){return Math.random()*(max-min)+min}
+
+    class Firework {
+      constructor(x, y, targetY, hue) {
+        this.x = x; this.y = y; this.targetY = targetY;
+        this.vy = rand(-8,-12); this.vx = rand(-2,2);
+        this.hue = hue; this.trail = []; this.alive = true;
+      }
+      update() {
+        this.trail.push([this.x,this.y]);
+        if(this.trail.length>8) this.trail.shift();
+        this.x += this.vx; this.y += this.vy; this.vy += 0.3;
+        if(this.y <= this.targetY || this.vy >= 0) {
+          this.alive = false; this.explode();
+        }
+      }
+      explode() {
+        const count = Math.floor(rand(50,100)); // lebih banyak partikel
+        for(let i=0;i<count;i++) particles.push(new Particle(this.x,this.y,this.hue));
+      }
+      draw() {
+        for(let i=0;i<this.trail.length;i++) {
+          const p = this.trail[i];
+          const alpha = i/this.trail.length;
+          ctx.beginPath();
+          ctx.arc(p[0], p[1], 2+alpha*2, 0, Math.PI*2);
+          ctx.fillStyle = `hsla(${this.hue},100%,60%,${0.2+alpha*0.35})`;
+          ctx.fill();
+        }
+      }
+    }
+
+    class Particle {
+      constructor(x,y,hue) {
+        this.x=x; this.y=y; this.speed=rand(1,8);
+        this.angle=rand(0,Math.PI*2);
+        this.friction=0.98; this.gravity=0.08;
+        this.hue=hue; this.alpha=1; this.decay=rand(0.005,0.02);
+      }
+      update() {
+        this.speed *= this.friction;
+        this.x += Math.cos(this.angle)*this.speed;
+        this.y += Math.sin(this.angle)*this.speed + this.gravity;
+        this.alpha -= this.decay; if(this.alpha<=0) this.alpha=0;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x,this.y, Math.max(0.6, this.speed/1.5), 0, Math.PI*2);
+        ctx.fillStyle = `hsla(${this.hue},100%,60%,${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    function launchRandom(){
+      const x = rand(W*0.1, W*0.9);
+      const targetY = rand(H*0.1, H*0.45);
+      const hue = Math.floor(rand(0,360));
+      fireworks.push(new Firework(x,H,targetY,hue));
+    }
+
+    let lastLaunch = 0;
+    function anim(ts){
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(2,6,23,0.35)';
+      ctx.fillRect(0,0,W,H);
+      ctx.globalCompositeOperation = 'lighter';
+
+      for(let i=fireworks.length-1;i>=0;i--){
+        fireworks[i].update();
+        fireworks[i].draw();
+        if(!fireworks[i].alive) fireworks.splice(i,1);
+      }
+      for(let i=particles.length-1;i>=0;i--){
+        particles[i].update();
+        particles[i].draw();
+        if(particles[i].alpha<=0.01) particles.splice(i,1);
+      }
+
+      if(ts - lastLaunch > rand(200,500)) { // lebih sering
+        launchRandom();
+        lastLaunch = ts;
+      }
+      requestAnimationFrame(anim);
+    }
+    requestAnimationFrame(anim);
+
+    window.addEventListener('resize', () => {
+      W = canvas.width = innerWidth;
+      H = canvas.height = innerHeight;
+    });
+
+    window.addEventListener('pointerdown', (e)=>{
+      const hue = Math.floor(rand(0,360));
+      fireworks.push(new Firework(e.clientX, H, rand(e.clientY-50,e.clientY-10), hue));
+    });
+  </script>
+</body>
+</html>
